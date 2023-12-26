@@ -6,19 +6,22 @@ import (
 
 templ DocumentViewer(query string, securityCode string, documents []db.Document) {
 	@htmlboilerplate() {
-		<h1 class="title">Documents</h1>
-		@queryForm(query, securityCode)
-		@documentsGrid(documents)
+		@tailwindBody(query, securityCode, documents)
+		// <h1 class="title">Documents</h1>
+		// @queryForm(query, securityCode)
+		// @documentsGrid(documents)
 	}
 }
 
 templ htmlboilerplate() {
-    <html>
+	<html>
 		<head>
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>Document Viewer</title>
-            <!--
+			<script src="https://cdn.tailwindcss.com"></script>
+			<!--
+			
 			<link rel="stylesheet" href="/assets/css/bulma.min.css"/>
 			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png"/>
@@ -27,19 +30,27 @@ templ htmlboilerplate() {
 			<script src="/assets/js/htmx.min.js"></script>
             -->
 		</head>
-		<body>
-			{ children... }
-        </body>
+		{ children... }
 	</html>
 }
 
 templ documentsGrid(documents []db.Document) {
-	<div>
-		<ul>
-		for _, document := range documents {
-			<li>{document.Name}</li>
-		}
-		</ul>
+	<div class="container max-w-screen-xl mx-auto px-4">
+		<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			for _, document := range documents {
+				<div class="bg-gray-50 px-8 py-10 rounded-md">
+					<div class="relative mb-4">
+						<h4 class="font-medium text-gray-900 text-lg">{ document.Name }</h4>
+						<h5 class="font-small text-gray-500 text-md relative z-10">
+							Security Code: 
+							<span class="font-monospace">{ document.SecurityCode }</span>
+						</h5>
+					</div>
+					<p class="font-normal text-gray-500 text-md mb-4">{ document.Content }</p>
+				</div>
+			}
+		</div>
 	</div>
 }
 
@@ -48,16 +59,74 @@ script updateQueryParams() {
                            + document.getElementById('securityCode').value;
 }
 
-templ queryForm(query string, securityCode string) {
-	<label for="securityCode">Security Code</label>
-	<input type="text" id="securityCode" name="securityCode" size="20"
-		onkeydown="if (event.key === 'Enter') document.getElementById('submit').click()"
-		autofocus value={securityCode} />
-	<button onclick={updateQueryParams()} id="submit"> Submit </button>
-
-	<div id="server-view">
-		Query: { query }
-	// TODO: syntax highlighting
+templ input(securityCode string) {
+	<label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+	<div class="relative w-1/2">
+		<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+			<svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
+			</svg>
+		</div>
+		<input
+			type="text"
+			id="securityCode"
+			class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+			placeholder="Enter your security code"
+			onkeydown="if (event.key === 'Enter') document.getElementById('submit').click()"
+			autofocus
+			value={ securityCode }
+		/>
+		<button
+			id="submit"
+			class="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+			onclick={ updateQueryParams() }
+		>
+			Search
+		</button>
 	</div>
 }
 
+templ queryForm(query string, securityCode string) {
+	<label for="securityCode">Security Code</label>
+	<input
+		type="text"
+		id="securityCode"
+		name="securityCode"
+		size="20"
+		onkeydown="if (event.key === 'Enter') document.getElementById('submit').click()"
+		autofocus
+		value={ securityCode }
+	/>
+	<button onclick={ updateQueryParams() } id="submit">Submit </button>
+	// <div id="tailwind-test">
+	// 	@input(securityCode)
+	// </div>
+	<div id="server-view">
+		Query: { query }
+		// TODO: syntax highlighting
+	</div>
+}
+
+templ tailwindBody(query string, securityCode string, documents []db.Document) {
+	<body class="bg-gray-100">
+		<section class="pt-10 md:pt-16">
+			<div class="container max-w-screen-xl mx-auto px-4">
+				<div class="text-center">
+					<h2 class="font-normal text-gray-900 text-4xl leading-none mb-8">Document Viewer</h2>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div>
+				<div class="container max-w-screen-xl mx-auto px-4">
+					<div class="grid place-items-center">
+						@input(securityCode)
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="py-10 md:py-16">
+			@documentsGrid(documents)
+		</section>
+	</body>
+}
