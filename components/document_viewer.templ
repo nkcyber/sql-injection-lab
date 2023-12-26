@@ -51,17 +51,12 @@ script updateQueryParams() {
 templ queryForm(query string, securityCode string) {
 	<label for="securityCode">Security Code</label>
 	<input type="text" id="securityCode" name="securityCode" size="20"
-		onkeydown="if (event.keyCode == 13) document.getElementById('submit').click()"
+		onkeydown="if (event.key === 'Enter') document.getElementById('submit').click()"
 		autofocus value={securityCode} />
 	<button onclick={updateQueryParams()} id="submit"> Submit </button>
 
-	<script>
-		document.getElementById('securityCode')
-			.addEventListener();
-	</script>
-
-	<div>
-	Query: { query }
+	<div id="server-view">
+		Query: { query }
 	// TODO: syntax highlighting
 	</div>
 }
