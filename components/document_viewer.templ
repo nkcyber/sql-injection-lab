@@ -1,6 +1,10 @@
 package components
 
-templ Index() {
+import (
+	"github.com/nkcyber/sql-injection-lab/db"
+)
+
+templ DocumentViewer(query string, documents []db.Document) {
     <html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -12,15 +16,23 @@ templ Index() {
 			<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png"/>
 			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-            -->
 			<script src="/assets/js/htmx.min.js"></script>
+            -->
 		</head>
 		<body class="bg-gray-100">
 			<header class="hero is-primary">
 				<div class="hero-body">
 					<div class="container">
-						<h1 class="title">Counts</h1>
+						<h1 class="title">Documents</h1>
 					</div>
+                    <ul>
+                    for _, document := range documents {
+                        <li>{document.Name}</li>
+                    }
+                    </ul>
+                    <div>
+                    Query: { query }
+                    </div>
 				</div>
 			</header>
         </body>

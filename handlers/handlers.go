@@ -26,58 +26,18 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	h.Get(w, r)
+	h.Log.Info(fmt.Sprintf("SERVE HTTP GET '%v'", r.URL))
+	// TODO: handle routes that aren't the document viewer
+	h.GetDocumentViewer(w, r)
 }
 
-func (h *DefaultHandler) Get(w http.ResponseWriter, r *http.Request) {
-	h.Log.Info("Default Handler Get")
-	ds, err := h.Documents.QueryAll()
+func (h *DefaultHandler) GetDocumentViewer(w http.ResponseWriter, r *http.Request) {
+	query := "SELECT * FROM documents WHERE securityCode = 'A';"
+	ds, err := h.Documents.UnsafeQuery(query)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("error querying all documents: %v\n", err))
 	}
-	for _, document := range ds {
-		h.Log.Info(fmt.Sprintf("Document:\n\tName: %v\n\tCode: %v\n\tContent: %v\n", document.Name, document.SecurityCode, document.Content))
-	}
-	h.Log.Info(fmt.Sprintf("# of documents: %v", len(ds)))
-	// var props ViewProps
-	// var err error
-	// if err != nil {
-	// 	h.Log.Error("failed to get counts", slog.Any("error", err))
-	// 	http.Error(w, "failed to get counts", http.StatusInternalServerError)
-	// 	return
-	// }
-	h.View(w, r)
-}
 
-// func (h *DefaultHandler) Post(w http.ResponseWriter, r *http.Request) {
-// 	r.ParseForm()
-
-// 	// Decide the action to take based on the button that was pressed.
-// 	var it services.IncrementType
-// 	if r.Form.Has("global") {
-// 		it = services.IncrementTypeGlobal
-// 	}
-// 	if r.Form.Has("session") {
-// 		it = services.IncrementTypeSession
-// 	}
-
-// 	counts, err := h.CountService.Increment(r.Context(), it, session.ID(r))
-// 	if err != nil {
-// 		h.Log.Error("failed to increment", slog.Any("error", err))
-// 		http.Error(w, "failed to increment", http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	// Display the view.
-// 	h.View(w, r, ViewProps{
-// 		Counts: counts,
-// 	})
-// }
-
-// type ViewProps struct {
-// 	Counts services.Counts
-// }
-
-func (h *DefaultHandler) View(w http.ResponseWriter, r *http.Request) {
-	components.Index().Render(r.Context(), w)
+	// render page to client
+	components.DocumentViewer(query, ds).Render(r.Context(), w)
 }

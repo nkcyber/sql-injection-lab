@@ -12,7 +12,8 @@ import (
 )
 
 func main() {
-	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	// log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	db, err := db.NewDocuments()
 	if err != nil {
 		log.Error(fmt.Sprintf("could not initalize database: %v", err))
