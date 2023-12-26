@@ -4,7 +4,15 @@ import (
 	"github.com/nkcyber/sql-injection-lab/db"
 )
 
-templ DocumentViewer(query string, documents []db.Document) {
+templ DocumentViewer(query string, securityCode string, documents []db.Document) {
+	@htmlboilerplate() {
+		<h1 class="title">Documents</h1>
+		@queryForm(query, securityCode)
+		@documentsGrid(documents)
+	}
+}
+
+templ htmlboilerplate() {
     <html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -19,22 +27,42 @@ templ DocumentViewer(query string, documents []db.Document) {
 			<script src="/assets/js/htmx.min.js"></script>
             -->
 		</head>
-		<body class="bg-gray-100">
-			<header class="hero is-primary">
-				<div class="hero-body">
-					<div class="container">
-						<h1 class="title">Documents</h1>
-					</div>
-                    <ul>
-                    for _, document := range documents {
-                        <li>{document.Name}</li>
-                    }
-                    </ul>
-                    <div>
-                    Query: { query }
-                    </div>
-				</div>
-			</header>
+		<body>
+			{ children... }
         </body>
 	</html>
 }
+
+templ documentsGrid(documents []db.Document) {
+	<div>
+		<ul>
+		for _, document := range documents {
+			<li>{document.Name}</li>
+		}
+		</ul>
+	</div>
+}
+
+script updateQueryParams() {
+	window.location.search = "?securityCode="
+                           + document.getElementById('securityCode').value;
+}
+
+templ queryForm(query string, securityCode string) {
+	<label for="securityCode">Security Code</label>
+	<input type="text" id="securityCode" name="securityCode" size="20"
+		onkeydown="if (event.keyCode == 13) document.getElementById('submit').click()"
+		autofocus value={securityCode} />
+	<button onclick={updateQueryParams()} id="submit"> Submit </button>
+
+	<script>
+		document.getElementById('securityCode')
+			.addEventListener();
+	</script>
+
+	<div>
+	Query: { query }
+	// TODO: syntax highlighting
+	</div>
+}
+
