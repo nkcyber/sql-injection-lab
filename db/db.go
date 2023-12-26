@@ -86,6 +86,8 @@ func (d *Documents) QueryAll() ([]Document, error) {
 
 func (d *Documents) UnsafeQuery(query string) ([]Document, error) {
 	// THIS IS UNSAFE, AND VULNERABLE TO SQL INJECTIONS
+	// Although, because it's using Query, it should not
+	// be able to modify the database.
 	rows, err := d.db.Query(query)
 	if err != nil {
 		return nil, err
