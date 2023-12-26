@@ -32,7 +32,9 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *DefaultHandler) GetDocumentViewer(w http.ResponseWriter, r *http.Request) {
-	query := "SELECT * FROM documents WHERE securityCode = 'A';"
+	securityCode := r.URL.Query().Get("securityCode")
+	// THIS IS VULNERABLE TO SQL INJECTIONS (which is the point of the lab)
+	query := fmt.Sprintf("SELECT * FROM documents WHERE securityCode = '%v';", securityCode)
 	ds, err := h.Documents.UnsafeQuery(query)
 	if err != nil {
 		h.Log.Error(fmt.Sprintf("error querying all documents: %v\n", err))
