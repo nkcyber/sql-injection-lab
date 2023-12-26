@@ -6,13 +6,19 @@ import (
 	"os"
 	"time"
 
+	"github.com/nkcyber/sql-injection-lab/db"
 	"github.com/nkcyber/sql-injection-lab/handlers"
 	"golang.org/x/exp/slog"
 )
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	h := handlers.New(log)
+	db, err := db.NewDocuments()
+	if err != nil {
+		log.Error(fmt.Sprintf("could not initalize database: %v", err))
+		return
+	}
+	h := handlers.New(log, db)
 
 	server := &http.Server{
 		Addr:         "localhost:9000",

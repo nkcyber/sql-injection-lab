@@ -1,25 +1,29 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/nkcyber/sql-injection-lab/components"
+	"github.com/nkcyber/sql-injection-lab/db"
 	"golang.org/x/exp/slog"
 )
 
-func New(log *slog.Logger) *DefaultHandler {
+func New(log *slog.Logger, db *db.Documents) *DefaultHandler {
 	return &DefaultHandler{
-		Log: log,
+		Log:       log,
+		Documents: db,
 	}
 }
 
 type DefaultHandler struct {
-	Log *slog.Logger
+	Log       *slog.Logger
+	Documents *db.Documents
 }
 
 func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", 405)
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
 	h.Get(w, r)
@@ -27,6 +31,14 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *DefaultHandler) Get(w http.ResponseWriter, r *http.Request) {
 	h.Log.Info("Default Handler Get")
+	ds, err := h.Documents.QueryAll()
+	if err != nil {
+		h.Log.Error(fmt.Sprintf("error querying all documents: %v\n", err))
+	}
+	for _, document := range ds {
+		h.Log.Info(fmt.Sprintf("Document:\n\tName: %v\n\tCode: %v\n\tContent: %v\n", document.Name, document.SecurityCode, document.Content))
+	}
+	h.Log.Info(fmt.Sprintf("# of documents: %v", len(ds)))
 	// var props ViewProps
 	// var err error
 	// if err != nil {
