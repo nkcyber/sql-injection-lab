@@ -49,3 +49,5 @@ It is intended to illustrate a simplistic example of how SQL injections can be u
 | [go-sqlite3](https://github.com/mattn/go-sqlite3) | Database Driver         |
 | [SQLite3](https://www.sqlite.org/index.html)      | Minimal Database        |
 | [Tailwind CSS](https://tailwindcss.com/)          | CSS Framework           |
+
+This project intentionally does not include user sessions or account management to limit scope.

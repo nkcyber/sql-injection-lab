@@ -32,13 +32,6 @@ const create string = `
   );
 `
 
-// const seed string = `
-// 	INSERT INTO documents VALUES("A", "A", "A Content");
-// 	INSERT INTO documents VALUES("B", "B", "B Content");
-// 	INSERT INTO documents VALUES("C", "C", "C Content");
-// 	INSERT INTO documents VALUES("Default", "", "This document has an empty security code");
-// `
-
 // Loads a new SQLITE3 database connection, and resets the database
 // context with the seed data. This database is only intended
 // to be read from by the documents service, and is intended

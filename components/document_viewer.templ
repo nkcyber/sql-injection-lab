@@ -8,9 +8,6 @@ import (
 templ DocumentViewer(query string, securityCode string, documents []db.Document) {
 	@htmlboilerplate() {
 		@tailwindBody(query, securityCode, documents)
-		// <h1 class="title">Documents</h1>
-		// @queryForm(query, securityCode)
-		// @documentsGrid(documents)
 	}
 }
 
@@ -24,6 +21,70 @@ templ htmlboilerplate() {
 		</head>
 		{ children... }
 	</html>
+}
+
+templ tailwindBody(query string, securityCode string, documents []db.Document) {
+	<body class="bg-gray-100">
+		@header(securityCode)
+		@serverView(query)
+		<section class="pb-12 pt-6">
+			<div class="container max-w-screen-xl mx-auto px-4">
+				<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
+				if len(documents) > 0 {
+					@documentsGrid(documents)
+				} else {
+					<div class="text-gray-700 text-center text-xl">
+						No results
+					</div>
+				}
+			</div>
+		</section>
+	</body>
+}
+
+templ header(securityCode string) {
+	<div class="bg-gradient-to-r from-cyan-500 to-blue-500 pb-12">
+		<section class="pt-10 md:pt-16">
+			<div class="container max-w-screen-xl mx-auto px-4">
+				<div class="text-center">
+					<h2 class="text-white font-normal text-gray-900 text-4xl md:text-5xl leading-none mb-4">
+						Document Viewer
+					</h2>
+					<h3 class="text-white font-semibold text-gray-900 text-md leading-none mb-6">
+						Enter your security code to view your secret documents.
+					</h3>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div>
+				<div class="container max-w-screen-xl mx-auto px-4">
+					<div class="grid place-items-center">
+						@input(securityCode)
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+}
+
+templ serverView(query string) {
+	// shows the "behind the scenes" of how the SQL command is interpreted
+	<div class="bg-slate-700 py-6">
+		<section class="container max-w-screen-xl mx-auto px-4 text-white">
+			<h1 class="font-medium text-3xl md:text-4xl mb-5">
+				SQL Query
+			</h1>
+			<div class={ "px-5", "py-3", "rounded-lg", codeBackground() }>
+				@templ.Raw(highlight(query))
+			</div>
+		</section>
+	</div>
+}
+
+css codeBackground() {
+	background-color: #282a36;
+	overflow-x: auto;
 }
 
 templ documentsGrid(documents []db.Document) {
@@ -77,70 +138,6 @@ templ input(securityCode string) {
 			Search
 		</button>
 	</div>
-}
-
-templ header(securityCode string) {
-	<div class="bg-gradient-to-r from-cyan-500 to-blue-500 pb-12">
-		<section class="pt-10 md:pt-16">
-			<div class="container max-w-screen-xl mx-auto px-4">
-				<div class="text-center">
-					<h2 class="text-white font-normal text-gray-900 text-4xl md:text-5xl leading-none mb-4">
-						Document Viewer
-					</h2>
-					<h3 class="text-white font-semibold text-gray-900 text-md leading-none mb-6">
-						Enter your security code to view your secret documents.
-					</h3>
-				</div>
-			</div>
-		</section>
-		<section>
-			<div>
-				<div class="container max-w-screen-xl mx-auto px-4">
-					<div class="grid place-items-center">
-						@input(securityCode)
-					</div>
-				</div>
-			</div>
-		</section>
-	</div>
-}
-
-css codeBackground() {
-	background-color: #282a36;
-	overflow-x: auto;
-}
-
-templ serverView(query string) {
-	// shows the "behind the scenes" of how the SQL command is interpreted
-	<div class="bg-slate-700 py-6">
-		<section class="container max-w-screen-xl mx-auto px-4 text-white">
-			<h1 class="font-medium text-3xl md:text-4xl mb-5">
-				SQL Query
-			</h1>
-			<div class={ "px-5", "py-3", "rounded-lg", codeBackground() }>
-				@templ.Raw(highlight(query))
-			</div>
-		</section>
-	</div>
-}
-
-templ tailwindBody(query string, securityCode string, documents []db.Document) {
-	<body class="bg-gray-100">
-		@header(securityCode)
-		@serverView(query)
-		<section class="pb-12 pt-6">
-			<div class="container max-w-screen-xl mx-auto px-4">
-				<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
-				if len(documents) > 0 {
-					@documentsGrid(documents)
-				} else {
-					<div class="text-gray-700 text-center text-xl">
-						No results
-					</div>
-				}
-			</div>
-		</section>
-	</body>
 }
 
 func highlight(query string) string {

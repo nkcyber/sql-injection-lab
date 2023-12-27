@@ -26,7 +26,7 @@ func (h *DefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	h.Log.Info(fmt.Sprintf("SERVE HTTP GET '%v'", r.URL))
+	h.Log.Debug(fmt.Sprintf("SERVE HTTP GET '%v'", r.URL))
 	// TODO: handle routes that aren't the document viewer
 	h.GetDocumentViewer(w, r)
 }
