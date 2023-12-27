@@ -22,7 +22,7 @@ func main() {
 	h := handlers.New(log, db)
 
 	server := &http.Server{
-		Addr:         "localhost:9000",
+		Addr:         "localhost:8080",
 		Handler:      h,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,

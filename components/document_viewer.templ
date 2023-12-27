@@ -2,6 +2,7 @@ package components
 
 import (
 	"github.com/nkcyber/sql-injection-lab/db"
+	"github.com/alecthomas/chroma/v2/quick"
 )
 
 templ DocumentViewer(query string, securityCode string, documents []db.Document) {
@@ -20,15 +21,6 @@ templ htmlboilerplate() {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>Document Viewer</title>
 			<script src="https://cdn.tailwindcss.com"></script>
-			<!--
-			
-			<link rel="stylesheet" href="/assets/css/bulma.min.css"/>
-			<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png"/>
-			<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png"/>
-			<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png"/>
-			<link rel="manifest" href="/assets/favicon/site.webmanifest"/>
-			<script src="/assets/js/htmx.min.js"></script>
-            -->
 		</head>
 		{ children... }
 	</html>
@@ -113,9 +105,12 @@ templ header(securityCode string) {
 		<section class="pt-10 md:pt-16">
 			<div class="container max-w-screen-xl mx-auto px-4">
 				<div class="text-center">
-					<h2 class="text-white font-normal text-gray-900 text-4xl md:text-5xl leading-none mb-8">
+					<h2 class="text-white font-normal text-gray-900 text-4xl md:text-5xl leading-none mb-4">
 						Document Viewer
 					</h2>
+					<h3 class="text-white font-semibold text-gray-900 text-md leading-none mb-6">
+						Enter your security code to view your secret documents.
+					</h3>
 				</div>
 			</div>
 		</section>
@@ -131,15 +126,20 @@ templ header(securityCode string) {
 	</div>
 }
 
+css codeBackground() {
+	background-color: #282a36;
+	overflow-x: auto;
+}
+
 templ serverView(query string) {
 	// shows the "behind the scenes" of how the SQL command is interpreted
 	<div class="bg-slate-700 py-6">
 		<section class="container max-w-screen-xl mx-auto px-4 text-white">
 			<h1 class="font-medium text-3xl md:text-4xl mb-5">
-				Server View
+				SQL Query
 			</h1>
-			<div>
-				{ query }
+			<div class={ "px-5", "py-3", "rounded-lg", codeBackground() }>
+				@templ.Raw(highlight(query))
 			</div>
 		</section>
 	</div>
@@ -155,9 +155,20 @@ templ tailwindBody(query string, securityCode string, documents []db.Document) {
 				if len(documents) > 0 {
 					@documentsGrid(documents)
 				} else {
-					<div>Nothing Found...</div>
+					<div class="text-gray-700 text-center text-xl">
+						Nothing Found...
+					</div>
 				}
 			</div>
 		</section>
 	</body>
+}
+
+func highlight(query string) string {
+	buf := new(bytes.Buffer)
+	err := quick.Highlight(buf, query, "sql", "html", "dracula")
+	if err != nil {
+		return query
+	}
+	return buf.String()
 }
