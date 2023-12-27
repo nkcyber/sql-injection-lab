@@ -37,7 +37,7 @@ func (h *DefaultHandler) GetDocumentViewer(w http.ResponseWriter, r *http.Reques
 	query := fmt.Sprintf("SELECT * FROM documents WHERE securityCode = '%v';", securityCode)
 	ds, err := h.Documents.UnsafeQuery(query)
 	if err != nil {
-		h.Log.Error(fmt.Sprintf("error querying all documents: %v\n", err))
+		h.Log.Error(fmt.Sprintf("error querying documents: %v\n", err))
 	}
 
 	// render page to client
