@@ -25,11 +25,11 @@ const drop string = `
 `
 
 const create string = `
-  CREATE TABLE IF NOT EXISTS documents (
-	name TEXT,
-	securityCode TEXT,
-	content TEXT
-  );
+	CREATE TABLE IF NOT EXISTS documents (
+		name TEXT,
+		securityCode TEXT,
+		content TEXT
+	);
 `
 
 // Loads a new SQLITE3 database connection, and resets the database
