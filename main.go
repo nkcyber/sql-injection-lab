@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,9 +13,11 @@ import (
 )
 
 func main() {
-	// log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	seedPath := flag.String("seedPath", "./example_seed.sql", "The path to the SQL script with seed data. The script will be executed on server initalization.")
+	flag.Parse()
+
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	db, err := db.NewDocuments()
+	db, err := db.NewDocuments(*seedPath)
 	if err != nil {
 		log.Error(fmt.Sprintf("could not initalize database: %v", err))
 		return

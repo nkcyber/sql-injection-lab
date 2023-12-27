@@ -2,6 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -30,19 +32,25 @@ const create string = `
   );
 `
 
-const seed string = `
-	INSERT INTO documents VALUES("A", "A", "A Content");
-	INSERT INTO documents VALUES("B", "B", "B Content");
-	INSERT INTO documents VALUES("C", "C", "C Content");
-	INSERT INTO documents VALUES("Default", "", "This document has an empty security code");
-`
+// const seed string = `
+// 	INSERT INTO documents VALUES("A", "A", "A Content");
+// 	INSERT INTO documents VALUES("B", "B", "B Content");
+// 	INSERT INTO documents VALUES("C", "C", "C Content");
+// 	INSERT INTO documents VALUES("Default", "", "This document has an empty security code");
+// `
 
 // Loads a new SQLITE3 database connection, and resets the database
 // context with the seed data. This database is only intended
 // to be read from by the documents service, and is intended
 // to exactly mirror the contents of the seed data.
 // This is the database students will execute SQL injections against.
-func NewDocuments() (*Documents, error) {
+func NewDocuments(seedPath string) (*Documents, error) {
+	// check to make seed script exists
+	_, err := os.Stat(seedPath)
+	if err != nil {
+		return nil, fmt.Errorf("error with seedPath ('%v'): %w", seedPath, err)
+	}
+	// establish database connection
 	db, err := sql.Open("sqlite3", file)
 	if err != nil {
 		return nil, err
@@ -57,9 +65,15 @@ func NewDocuments() (*Documents, error) {
 		return nil, err
 	}
 	// insert data into database
-	if _, err := db.Exec(seed); err != nil {
+	b, err := os.ReadFile(seedPath)
+	if err != nil {
 		return nil, err
 	}
+	seedScript := string(b)
+	if _, err := db.Exec(seedScript); err != nil {
+		return nil, err
+	}
+	// return database connection
 	return &Documents{
 		db: db,
 	}, nil

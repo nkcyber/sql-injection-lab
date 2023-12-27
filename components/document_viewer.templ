@@ -79,27 +79,6 @@ templ input(securityCode string) {
 	</div>
 }
 
-templ queryForm(query string, securityCode string) {
-	<label for="securityCode">Security Code</label>
-	<input
-		type="text"
-		id="securityCode"
-		name="securityCode"
-		size="20"
-		onkeydown="if (event.key === 'Enter') document.getElementById('submit').click()"
-		autofocus
-		value={ securityCode }
-	/>
-	<button onclick={ updateQueryParams() } id="submit">Submit </button>
-	// <div id="tailwind-test">
-	// 	@input(securityCode)
-	// </div>
-	<div id="server-view">
-		Query: { query }
-		// TODO: syntax highlighting
-	</div>
-}
-
 templ header(securityCode string) {
 	<div class="bg-gradient-to-r from-cyan-500 to-blue-500 pb-12">
 		<section class="pt-10 md:pt-16">
@@ -156,7 +135,7 @@ templ tailwindBody(query string, securityCode string, documents []db.Document) {
 					@documentsGrid(documents)
 				} else {
 					<div class="text-gray-700 text-center text-xl">
-						Nothing Found...
+						No results
 					</div>
 				}
 			</div>
