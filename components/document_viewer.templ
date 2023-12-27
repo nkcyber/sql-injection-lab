@@ -5,9 +5,9 @@ import (
 	"github.com/alecthomas/chroma/v2/quick"
 )
 
-templ DocumentViewer(query string, securityCode string, documents []db.Document) {
+templ DocumentViewer(query string, securityCode string, err error, documents []db.Document) {
 	@htmlboilerplate() {
-		@tailwindBody(query, securityCode, documents)
+		@tailwindBody(query, securityCode, err, documents)
 	}
 }
 
@@ -23,10 +23,10 @@ templ htmlboilerplate() {
 	</html>
 }
 
-templ tailwindBody(query string, securityCode string, documents []db.Document) {
+templ tailwindBody(query string, securityCode string, err error, documents []db.Document) {
 	<body class="bg-gray-100">
 		@header(securityCode)
-		@serverView(query)
+		@serverView(query, err)
 		<section class="pb-12 pt-6">
 			<div class="container max-w-screen-xl mx-auto px-4">
 				<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
@@ -68,23 +68,38 @@ templ header(securityCode string) {
 	</div>
 }
 
-templ serverView(query string) {
+templ serverView(query string, err error) {
 	// shows the "behind the scenes" of how the SQL command is interpreted
 	<div class="bg-slate-700 py-6">
 		<section class="container max-w-screen-xl mx-auto px-4 text-white">
 			<h1 class="font-medium text-3xl md:text-4xl mb-5">
 				SQL Query
 			</h1>
-			<div class={ "px-5", "py-3", "rounded-lg", codeBackground() }>
+			<div class={ codeBackground(), "px-5", "py-3", "rounded-lg" }>
 				@templ.Raw(highlight(query))
 			</div>
 		</section>
+		if err != nil {
+			<section class="container max-w-screen-xl mx-auto px-4 text-white">
+				<div class="bg-slate-700 py-6">
+					<div class={ codeBackground(), "font-mono", "px-5", "py-3", "rounded-lg" }>
+						<span>
+							Error:
+						</span>
+						<span class="text-red-400">
+							{ err.Error() } // bringing the full error down in case we wanna do errors.Is() in the future
+						</span>
+					</div>
+				</div>
+			</section>
+		}
 	</div>
 }
 
 css codeBackground() {
 	background-color: #282a36;
 	overflow-x: auto;
+	line-height: 1em;
 }
 
 templ documentsGrid(documents []db.Document) {

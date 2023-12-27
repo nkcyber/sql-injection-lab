@@ -41,5 +41,5 @@ func (h *DefaultHandler) GetDocumentViewer(w http.ResponseWriter, r *http.Reques
 	}
 
 	// render page to client
-	components.DocumentViewer(query, securityCode, ds).Render(r.Context(), w)
+	components.DocumentViewer(query, securityCode, err, ds).Render(r.Context(), w)
 }
