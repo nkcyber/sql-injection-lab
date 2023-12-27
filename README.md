@@ -8,7 +8,7 @@ and returns all documents tagged with that code
 > This application contains intentional SQL injection vulnerabilities.
 
 > [!NOTE]  
-> This will be reused across CTFs on **February 18th, 2024** and **March 23rd, 2024**. (and maybe more)
+> This will be reused across CTFs on **February 18th, 2024** and **March 23rd, 2024** (and maybe more).
 
 ## Screenshot
 
