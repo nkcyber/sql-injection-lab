@@ -15,7 +15,6 @@ and returns all documents tagged with that code
 ![image](https://github.com/nkcyber/sql-injection-lab/assets/46602241/444ad589-380a-456c-ab53-2292aa8a1287)
 
 
-
 ## Run locally
 
 ```bash
@@ -37,6 +36,12 @@ It is intended to illustrate a simplistic example of how SQL injections can be u
 > go run main.go -seedPath='/your/path/here'
 > ```
 > See [`/example_seed.sql`](./example_seed.sql) as an example.
+>
+> The port can also be configured via a flag:
+> ```bash
+> go run main.go -port='4321'
+> ```
+
 
 ### Tech Stack
 
