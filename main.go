@@ -14,6 +14,7 @@ import (
 
 func main() {
 	seedPath := flag.String("seedPath", "./example_seed.sql", "The path to the SQL script with seed data. The script will be executed on server initalization.")
+	port := flag.Int("port", 8080, "the port to listen and serve HTTP on")
 	flag.Parse()
 
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -25,7 +26,7 @@ func main() {
 	h := handlers.New(log, db)
 
 	server := &http.Server{
-		Addr:         "localhost:8080",
+		Addr:         fmt.Sprintf("localhost:%d", *port),
 		Handler:      h,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,
