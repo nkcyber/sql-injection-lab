@@ -5,13 +5,7 @@ import (
 	"github.com/alecthomas/chroma/v2/quick"
 )
 
-templ DocumentViewer(query string, securityCode string, err error, documents []db.Document) {
-	@htmlboilerplate() {
-		@tailwindBody(query, securityCode, err, documents)
-	}
-}
-
-templ htmlboilerplate() {
+templ DocumentViewer(query, securityCode string, err error, documents []db.Document) {
 	<html>
 		<head>
 			<meta charset="UTF-8"/>
@@ -19,30 +13,16 @@ templ htmlboilerplate() {
 			<title>Document Viewer</title>
 			<script src="https://cdn.tailwindcss.com"></script>
 		</head>
-		{ children... }
+		<body class="bg-gray-100">
+			@header(securityCode)
+			@serverView(query, err)
+			@documentsView(documents)
+		</body>
 	</html>
 }
 
-templ tailwindBody(query string, securityCode string, err error, documents []db.Document) {
-	<body class="bg-gray-100">
-		@header(securityCode)
-		@serverView(query, err)
-		<section class="pb-12 pt-6">
-			<div class="container max-w-screen-xl mx-auto px-4">
-				<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
-				if len(documents) > 0 {
-					@documentsGrid(documents)
-				} else {
-					<div class="text-gray-700 text-center text-xl">
-						No results
-					</div>
-				}
-			</div>
-		</section>
-	</body>
-}
-
 templ header(securityCode string) {
+	// contains title text and input for user's security code
 	<div class="bg-gradient-to-r from-cyan-500 to-blue-500 pb-12">
 		<section class="pt-10 md:pt-16">
 			<div class="container max-w-screen-xl mx-auto px-4">
@@ -87,7 +67,7 @@ templ serverView(query string, err error) {
 							Error:
 						</span>
 						<span class="text-red-400">
-							{ err.Error() } // bringing the full error down in case we wanna do errors.Is() in the future
+							{ err.Error() } // bringing the full error down in case we want to match on errors.Is() in the future
 						</span>
 					</div>
 				</div>
@@ -100,6 +80,21 @@ css codeBackground() {
 	background-color: #282a36;
 	overflow-x: auto;
 	line-height: 1em;
+}
+
+templ documentsView(documents []db.Document) {
+	<section class="pb-12 pt-6">
+		<div class="container max-w-screen-xl mx-auto px-4">
+			<h1 class="font-medium text-gray-700 text-3xl md:text-4xl mb-5">Documents</h1>
+			if len(documents) > 0 {
+				@documentsGrid(documents)
+			} else {
+				<div class="text-gray-700 text-center text-xl">
+					No results
+				</div>
+			}
+		</div>
+	</section>
 }
 
 templ documentsGrid(documents []db.Document) {
@@ -132,6 +127,7 @@ templ input(securityCode string) {
 	<label for="default-search" class="mb-2 text-sm font-medium sr-only text-white">Search</label>
 	<div class="relative w-full md:w-1/2">
 		<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+			// svg of search icon
 			<svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
 				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
 			</svg>
@@ -156,6 +152,7 @@ templ input(securityCode string) {
 }
 
 func highlight(query string) string {
+	// highlight SQL using Chroma
 	buf := new(bytes.Buffer)
 	err := quick.Highlight(buf, query, "sql", "html", "dracula")
 	if err != nil {
