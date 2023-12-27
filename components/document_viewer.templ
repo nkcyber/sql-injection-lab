@@ -67,8 +67,24 @@ templ serverView(query string, err error) {
 							Error:
 						</span>
 						<span class="text-red-400">
-							{ err.Error() } // bringing the full error down in case we want to match on errors.Is() in the future
+							{ err.Error() }
 						</span>
+						// Unfortunately, this error is of type 'errors.errorString', so
+						// there isn't a destinctive error type to match on.
+						// This is confusing enough that we provide a hint, for pedagogical purposes.
+						if err.Error() == "sql: expected 0 destination arguments in Scan, not 3" {
+							<p class="pt-3 text-yellow-200 leading-relaxed">
+								Hint: This error means you're returning zero fields, 
+								but the server expects three (name, securityCode, content).
+							</p>
+							<p class="pt-2 text-yellow-200 leading-relaxed">
+								Make sure your query doesn't end with a semicolon then a comment (e.g.
+								<code class="text-white">
+									;--
+								</code>) because the semicolon creates two queries, 
+								the last of which is just an empty comment, which returns nothing.
+							</p>
+						}
 					</div>
 				</div>
 			</section>
@@ -120,7 +136,7 @@ templ documentsGrid(documents []db.Document) {
 
 script updateQueryParams() {
 	window.location.search = "?securityCode="
-                           + document.getElementById('securityCode').value;
+                           + encodeURIComponent(document.getElementById('securityCode').value);
 }
 
 templ input(securityCode string) {
