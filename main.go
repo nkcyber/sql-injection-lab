@@ -13,8 +13,9 @@ import (
 )
 
 func main() {
-	seedPath := flag.String("seedPath", "./example_seed.sql", "The path to the SQL script with seed data. The script will be executed on server initalization.")
-	port := flag.Int("port", 8080, "the port to listen and serve HTTP on")
+	ip := flag.String("ip", "localhost", "The ip address to listen and serve HTTP on")
+	port := flag.Int("port", 8080, "The port to listen and serve HTTP on")
+	seedPath := flag.String("seedPath", "./example_seed.sql", "The path to the SQL script with seed data; The script will be executed on server initalization")
 	flag.Parse()
 
 	log := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -26,11 +27,13 @@ func main() {
 	h := handlers.New(log, db)
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf("localhost:%d", *port),
+		Addr:         fmt.Sprintf("%v:%d", *ip, *port),
 		Handler:      h,
 		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 10,
 	}
 	fmt.Printf("Listening on %v\n", server.Addr)
-	server.ListenAndServe()
+	if err := server.ListenAndServe(); err != nil {
+		log.Error(fmt.Sprintf("exited: %v", err))
+	}
 }
