@@ -1,8 +1,8 @@
 # sql-injection-lab
-This is a bare bones document viewer used to practice SQL injections
+This is a bare bones document viewer used to practice SQL injections.
 
 This application features a simple document viewer, that takes a user's 'security code'
-and returns all documents tagged with that code
+and returns all documents tagged with that code.
 
 > [!WARNING]  
 > This application contains intentional SQL injection vulnerabilities.
