@@ -18,7 +18,7 @@ type Documents struct {
 	db *sql.DB
 }
 
-const file string = "documents.db"
+const file string = "file:documents.db"
 
 const drop string = `
 	DROP TABLE IF EXISTS documents;
@@ -38,37 +38,45 @@ const create string = `
 // to exactly mirror the contents of the seed data.
 // This is the database students will execute SQL injections against.
 func NewDocuments(seedPath string) (*Documents, error) {
-	// check to make seed script exists
-	_, err := os.Stat(seedPath)
+
+	{ // seed the database
+		// check to make seed script exists
+		_, err := os.Stat(seedPath)
+		if err != nil {
+			return nil, fmt.Errorf("error with seedPath ('%v'): %w", seedPath, err)
+		}
+		// establish database connection
+		db, err := sql.Open("sqlite3", file)
+		if err != nil {
+			return nil, err
+		}
+		// drop the document table if it exists, so that
+		// we're sure it's a mirror of the seed data
+		if _, err := db.Exec(drop); err != nil {
+			return nil, err
+		}
+		// create database if it doesn't already exist
+		if _, err := db.Exec(create); err != nil {
+			return nil, err
+		}
+		// insert data into database
+		b, err := os.ReadFile(seedPath)
+		if err != nil {
+			return nil, err
+		}
+		seedScript := string(b)
+		if _, err := db.Exec(seedScript); err != nil {
+			return nil, err
+		}
+	}
+
+	readOnlyDB, err := sql.Open("sqlite3", file+"?mode=ro")
 	if err != nil {
-		return nil, fmt.Errorf("error with seedPath ('%v'): %w", seedPath, err)
-	}
-	// establish database connection
-	db, err := sql.Open("sqlite3", file)
-	if err != nil {
-		return nil, err
-	}
-	// drop the document table if it exists, so that
-	// we're sure it's a mirror of the seed data
-	if _, err := db.Exec(drop); err != nil {
-		return nil, err
-	}
-	// create database if it doesn't already exist
-	if _, err := db.Exec(create); err != nil {
-		return nil, err
-	}
-	// insert data into database
-	b, err := os.ReadFile(seedPath)
-	if err != nil {
-		return nil, err
-	}
-	seedScript := string(b)
-	if _, err := db.Exec(seedScript); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("opening read only file: %w", err)
 	}
 	// return database connection
 	return &Documents{
-		db: db,
+		db: readOnlyDB,
 	}, nil
 }
 
